@@ -1,4 +1,4 @@
-# SMASH HOUSE 3.0
+# SMASH HOUSE 3.1
 
 Sitio web estático de una hamburguesería **ficticia** de Corrientes, Argentina. Diseño basado en la referencia visual proporcionada: carbón, rojo intenso, blanco hueso, tipografía contundente y detalles streetwear.
 
@@ -104,7 +104,7 @@ El mensaje incluye nombre, modalidad, dirección si corresponde, nombres de prod
 
 Podés volver al carrito o editar tus datos sin perder los productos. Si cambiás cantidades, se genera un nuevo mensaje al revisar. Cerrar el diálogo conserva los datos durante la sesión. Recargar la página reinicia el carrito y el formulario. No se guardan datos personales en almacenamiento persistente ni se envían a un servidor.
 
-El número se configura **solo en `SITE_CONFIG.whatsappNumber`, al inicio de `script.js`**. Está vacío por defecto. Ingresar únicamente un número autorizado, en formato internacional con solo dígitos. No usar números de ejemplo. Este proyecto no incluye ningún teléfono real ni inventado.
+El número predeterminado del local se configura **solo en `SITE_CONFIG.whatsappNumber`, al inicio de `script.js`**. Para pruebas temporales, la versión 3.1 permite introducir un destino en la interfaz sin modificar este archivo. Está vacío por defecto. Ingresar únicamente un número autorizado, en formato internacional con solo dígitos. No usar números de ejemplo. Este proyecto no incluye ningún teléfono real ni inventado.
 
 ### Vista previa y copia
 
@@ -124,3 +124,44 @@ Se verificó en Chromium mediante un servidor estático:
 - Pasos del carrito, formulario y revisión sin desbordes en 320, 375, 390, 768, 1024 y 1440 px.
 
 Las fotografías, el encabezado, la portada y las secciones existentes se mantienen. No se publicó el sitio ni se fusionó con `main`.
+
+
+## Modo de prueba y revisión visual — versión 3.1
+
+Rama: `feat/smash-house-v3-1-testing`, creada desde `feat/smash-house-v3-whatsapp` (versión 3.0, commit `031e611`). No se modifican productos, precios, fotografías, portada, secciones, filtros ni cálculo del carrito.
+
+### Cómo usarlo
+
+1. Agregá productos, abrí el carrito y elegí **FINALIZAR PEDIDO**.
+2. Completá nombre y modalidad; para delivery, también la dirección. Elegí **REVISAR PEDIDO**.
+3. Revisá el resumen visual: cliente, entrega, productos, cantidades, precios unitarios, subtotales, total destacado y observaciones si existen.
+4. Activá **MODO DE PRUEBA** e ingresá un número cuyo uso tengas autorizado, con código de país. Para Argentina corresponde +54 y, cuando aplique a un celular, el 9, sin el 0 de área ni el 15 local. No se incluyen teléfonos de ejemplo en el proyecto.
+5. Cuando el formato sea válido aparece **ABRIR WHATSAPP DE PRUEBA**. El enlace oficial `https://wa.me/` contiene los dígitos normalizados y el mensaje codificado con `encodeURIComponent`. Vos revisás y enviás manualmente desde WhatsApp; el sitio no envía el mensaje ni vacía el carrito.
+6. Desactivá **MODO DE PRUEBA** para borrar el campo, la variable en memoria y el enlace de prueba. Si existe un destino predeterminado autorizado, vuelve a ofrecerse el enlace normal; de lo contrario, sigue disponible la copia.
+
+Se aceptan entre 8 y 15 dígitos, sin cero inicial, con signo `+` opcional. Se permiten espacios, guiones, puntos y paréntesis como separadores. Se rechazan letras, extensiones, signos `+` internos y prefijo `00`. Esta validación solo comprueba un formato internacional razonable: no confirma la existencia del número, la disponibilidad de WhatsApp ni la autorización de su titular.
+
+Mientras el modo de prueba está activo, un destino vacío o inválido **no utiliza como alternativa el número predeterminado del local**. El botón de WhatsApp permanece oculto y el mensaje sigue disponible para copiar.
+
+### Privacidad y duración
+
+El teléfono de prueba vive exclusivamente en el campo de la interfaz y una variable en memoria. No se escribe en `SITE_CONFIG`, localStorage, sessionStorage, cookies, archivos, repositorios, logs ni mensajes de error. No se envía a servidores propios ni a almacenamiento externo. Solo se utiliza al abrir voluntariamente el enlace oficial de WhatsApp.
+
+Cerrar el carrito conserva el destino de prueba durante esa página abierta. Desactivar el modo, recargar o abandonar la página lo borra. Los eventos de navegación limpian el estado para evitar que vuelva un destino anterior al restaurar la página desde la caché del navegador. El campo tiene autocompletado desactivado.
+
+### Mensaje completo y copia
+
+La revisión ya no depende de un cuadro de texto grande: usa un resumen legible y adaptable. **Ver mensaje completo** despliega el texto exacto que se copia o incorpora al enlace. **COPIAR MENSAJE** funciona aunque el desplegable esté cerrado y aunque no haya ningún teléfono configurado. Si el navegador bloquea la copia automática, se abre el desplegable, se selecciona el texto y se indican los pasos para copiarlo manualmente. El teléfono de destino no se incluye dentro del mensaje del pedido.
+
+### Pruebas de 3.1
+
+- Carrito vacío y con varios productos, modificación de cantidades, eliminación y totales exactos; resumen y mensaje actualizados después de editar el pedido.
+- Formulario obligatorio, retiro/delivery, dirección condicional, observaciones y caracteres especiales.
+- Activación, desactivación, borrado y reactivación del modo; validación internacional y normalización de separadores; rechazo de formatos inválidos sin mostrar el valor en errores.
+- Correspondencia exacta entre mensaje y enlace oficial codificado. Navegación externa interceptada con destinos sintéticos generados solo durante las pruebas: no se enviaron mensajes ni se usaron números reales.
+- Carrito conservado después de abrir WhatsApp; ausencia de alternativa al destino del local cuando el modo de prueba tiene un número inválido.
+- Sin escrituras en almacenamiento del navegador; limpieza al recargar y al abandonar la página.
+- Copia automática y alternativa manual; navegación por teclado; resumen y mensaje desplegable con textos largos sin desbordes a 320, 375, 390, 768, 1024 y 1440 px.
+- Sin errores JavaScript; auditoría automática axe-core WCAG A/AA y 2.1 AA sin incidencias en los pasos del checkout a 390 y 1440 px, incluido el error del campo de prueba. No sustituye una revisión manual completa con tecnologías de asistencia.
+
+Los cambios quedan locales en la rama de 3.1: sin commit, push, fusión con `main` ni publicación.

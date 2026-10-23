@@ -83,7 +83,7 @@ document.querySelector('#close-cart').addEventListener('click', closeCart);
 document.querySelector('#continue-shopping').addEventListener('click', () => { closeCart(); document.querySelector('#menu').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'}); });
 dialog.addEventListener('keydown', event => {
   if (event.key !== 'Tab') return;
-  const focusable = [...dialog.querySelectorAll('button, a[href], input, textarea, select')].filter(element => !element.hidden && !element.disabled && element.getClientRects().length);
+  const focusable = [...dialog.querySelectorAll('button, a[href], input, textarea, select, summary')].filter(element => !element.hidden && !element.disabled && element.getClientRects().length && (!element.checkVisibility || element.checkVisibility()));
   const first = focusable[0], last = focusable[focusable.length - 1];
   if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
   else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
@@ -171,22 +171,116 @@ function buildOrderMessage() {
     'Disponibilidad y entrega a confirmar con el local.'
   ].join('\n');
 }
+// El destino de prueba vive únicamente en el DOM y esta variable de memoria.
+// Nunca escribirlo en configuración, almacenamiento persistente, logs ni mensajes.
+const testModeInput = document.querySelector('#test-mode');
+const testPhoneInput = document.querySelector('#test-whatsapp-number');
+let testWhatsappNumber = '';
+function normalizeWhatsappNumber(value) {
+  const text = String(value).trim();
+  if (!/^\+?[1-9][\d\s().-]*$/.test(text)) return '';
+  const digits = text.replace(/[+\s().-]/g, '');
+  return /^[1-9]\d{7,14}$/.test(digits) ? digits : '';
+}
+function setTestPhoneError(message) {
+  const error = document.querySelector('#test-phone-error');
+  error.textContent = message;
+  error.hidden = !message;
+  if (message) testPhoneInput.setAttribute('aria-invalid', 'true');
+  else testPhoneInput.removeAttribute('aria-invalid');
+}
+function updateWhatsappLink(showError = false) {
+  const checkout = document.querySelector('#whatsapp-checkout');
+  const testing = testModeInput.checked;
+  testWhatsappNumber = testing ? normalizeWhatsappNumber(testPhoneInput.value) : '';
+  const destination = testing ? testWhatsappNumber : normalizeWhatsappNumber(SITE_CONFIG.whatsappNumber);
+  setTestPhoneError(testing && showError && !testWhatsappNumber
+    ? 'Ingresá un número internacional de 8 a 15 dígitos, con código de país y sin extensiones ni prefijo 00.' : '');
+  const ready = Boolean(destination && cart.size && document.querySelector('#order-preview').value);
+  checkout.hidden = !ready;
+  checkout.replaceChildren(document.createTextNode(testing ? 'ABRIR WHATSAPP DE PRUEBA ' : 'ABRIR WHATSAPP '));
+  const arrow = document.createElement('span');
+  arrow.setAttribute('aria-hidden', 'true');
+  arrow.textContent = '↗';
+  checkout.append(arrow);
+  if (ready) checkout.href = `https://wa.me/${destination}?text=${encodeURIComponent(buildOrderMessage())}`;
+  else checkout.removeAttribute('href');
+  document.querySelector('#checkout-note').textContent = testing
+    ? (ready ? 'Modo de prueba activo. Se abrirá WhatsApp con el pedido actual para que lo revises y lo envíes manualmente. El carrito se conserva.' : 'Modo de prueba activo. Ingresá un número autorizado con formato internacional para habilitar WhatsApp de prueba. También podés copiar el mensaje.')
+    : (destination ? 'WhatsApp se abrirá con un borrador. Vos decidís si enviarlo. Abrirlo no confirma el pedido y no vacía tu carrito.' : 'WhatsApp pendiente de un número autorizado. Podés copiar este mensaje de demostración; no se enviará automáticamente.');
+}
+function clearTestMode() {
+  testModeInput.checked = false;
+  testModeInput.setAttribute('aria-expanded', 'false');
+  testPhoneInput.value = '';
+  testPhoneInput.disabled = true;
+  testWhatsappNumber = '';
+  document.querySelector('#test-phone-field').hidden = true;
+  setTestPhoneError('');
+  updateWhatsappLink();
+}
+function renderOrderSummary() {
+  const delivery = selectedMode() === 'delivery';
+  document.querySelector('#review-customer-name').textContent = nameInput.value.trim();
+  document.querySelector('#review-delivery-mode').textContent = delivery ? 'Delivery' : 'Retiro en el local';
+  document.querySelector('#review-address-row').hidden = !delivery;
+  document.querySelector('#review-address').textContent = delivery ? addressInput.value.trim() : '';
+  const notes = notesInput.value.trim();
+  document.querySelector('#review-notes-row').hidden = !notes;
+  document.querySelector('#review-notes').textContent = notes;
+  const list = document.querySelector('#review-products');
+  list.replaceChildren();
+  let total = 0;
+  for (const [id, quantity] of cart) {
+    const product = products.find(item => item.id === id);
+    const subtotal = product.price * quantity;
+    total += subtotal;
+    const item = document.createElement('li');
+    const info = document.createElement('div');
+    const title = document.createElement('strong');
+    title.textContent = `${quantity} × ${product.name}`;
+    const unit = document.createElement('span');
+    unit.textContent = `Unitario: ${money(product.price)} ARS`;
+    info.append(title, unit);
+    const amount = document.createElement('span');
+    amount.className = 'receipt-subtotal';
+    amount.textContent = `${money(subtotal)} ARS`;
+    const label = document.createElement('small');
+    label.textContent = 'Subtotal';
+    amount.prepend(label);
+    item.append(info, amount);
+    list.append(item);
+  }
+  document.querySelector('#review-total').textContent = `${money(total)} ARS`;
+}
 function reviewOrder() {
   if (!cart.size) { showOrderStep('cart'); return; }
   if (!validateCustomer()) return;
-  const message = buildOrderMessage();
-  document.querySelector('#order-preview').value = message;
+  document.querySelector('#order-preview').value = buildOrderMessage();
   document.querySelector('#copy-status').textContent = '';
-  const checkout = document.querySelector('#whatsapp-checkout');
-  const configured = /^[1-9]\d{7,14}$/.test(SITE_CONFIG.whatsappNumber);
-  checkout.hidden = !configured;
-  if (configured) checkout.href = `https://wa.me/${SITE_CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
-  else checkout.removeAttribute('href');
-  document.querySelector('#checkout-note').textContent = configured
-    ? 'WhatsApp se abrirá con un borrador. Vos decidís si enviarlo. Abrirlo no confirma el pedido y no vacía tu carrito.'
-    : 'WhatsApp pendiente de un número autorizado. Podés copiar este mensaje de demostración; no se enviará automáticamente.';
+  renderOrderSummary();
+  updateWhatsappLink();
   showOrderStep('review');
 }
+testModeInput.addEventListener('change', () => {
+  if (!testModeInput.checked) { clearTestMode(); return; }
+  testModeInput.setAttribute('aria-expanded', 'true');
+  document.querySelector('#test-phone-field').hidden = false;
+  testPhoneInput.disabled = false;
+  updateWhatsappLink();
+  testPhoneInput.focus();
+});
+testPhoneInput.addEventListener('input', () => updateWhatsappLink(Boolean(testPhoneInput.value.trim())));
+testPhoneInput.addEventListener('blur', () => updateWhatsappLink(testModeInput.checked));
+document.querySelector('#whatsapp-checkout').addEventListener('click', event => {
+  // Volver a generar desde el carrito actual; nunca navegar sin destino válido.
+  updateWhatsappLink(true);
+  if (!cart.size || !document.querySelector('#order-preview').value || document.querySelector('#whatsapp-checkout').hidden) event.preventDefault();
+});
+// Evitar restauración de un destino de prueba por formularios o caché de navegación.
+clearTestMode();
+window.addEventListener('pagehide', clearTestMode);
+window.addEventListener('pageshow', clearTestMode);
 document.querySelector('#finalize-order').addEventListener('click', () => {
   if (cart.size) showOrderStep('customer');
 });
@@ -206,6 +300,7 @@ document.querySelector('#copy-order').addEventListener('click', async () => {
     await navigator.clipboard.writeText(preview.value);
     status.textContent = 'Mensaje copiado. Podés pegarlo donde prefieras; no fue enviado.';
   } catch {
+    document.querySelector('#message-details').open = true;
     preview.focus();
     preview.select();
     preview.setSelectionRange(0, preview.value.length);

@@ -81,3 +81,49 @@
 #mode-error { margin: 10px 0 0; }
 #copy-status { overflow-wrap: anywhere; }
 @media (max-width: 380px) { .order-action { font-size: 13px; padding: 14px 16px; gap: 12px; } }
+
+/* V3.1: revisión visual y destino de prueba, solo dentro del checkout. */
+.order-receipt { background: #0d0d0d; border: 1px solid #ffffff25; border-radius: 6px; padding: 20px; overflow-wrap: anywhere; }
+.order-receipt > .eyebrow { color: #c6c0b6; font-size: 9px; margin-bottom: 18px; }
+.receipt-customer { margin: 0; }
+.receipt-customer > div { margin-bottom: 12px; }
+.receipt-customer dt { font-size: 11px; color: #aaa69f; }
+.receipt-customer dd { margin: 3px 0 0; font-size: 14px; white-space: pre-wrap; }
+.receipt-products { list-style: none; padding: 0; margin: 20px 0; border-top: 1px solid #ffffff25; }
+.receipt-products li { display: flex; justify-content: space-between; align-items: start; gap: 16px; padding: 16px 0; border-bottom: 1px solid #ffffff25; }
+.receipt-products li > div { min-width: 0; }
+.receipt-products strong { display: block; font-size: 13px; }
+.receipt-products li > div > span { display: block; margin-top: 5px; font-size: 11px; color: #c6c0b6; }
+.receipt-subtotal { text-align: right; font-size: 13px; flex-shrink: 0; }
+.receipt-subtotal small { display: block; font-size: 10px; color: #aaa69f; margin-bottom: 5px; }
+.receipt-total { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 18px; border-left: 3px solid #e52329; background: #e5232918; }
+.receipt-total > span { font-size: 10px; letter-spacing: .5px; }
+.receipt-total small { display: block; color: #c6c0b6; margin-top: 5px; font-size: 10px; letter-spacing: 0; }
+.receipt-total strong { font: 25px/1.3 Anton, sans-serif; }
+.receipt-notes { margin-top: 20px; }
+.receipt-notes h4 { font-size: 10px; color: #aaa69f; margin: 0 0 8px; letter-spacing: 1px; }
+.receipt-notes p { font-size: 13px; white-space: pre-wrap; }
+.receipt-disclaimer { margin-top: 18px; font-size: 10px; color: #aaa69f; }
+.message-details { margin: 18px 0 22px; }
+.message-details summary { font-size: 12px; color: #c6c0b6; cursor: pointer; padding: 6px 0; }
+.message-details #order-preview { margin: 10px 0 0; font-size: 13px; }
+.test-mode-panel { border: 1px solid #ffffff40; border-radius: 6px; margin: 0 0 18px; padding: 16px; }
+.test-mode-toggle { display: flex; justify-content: space-between; align-items: center; gap: 18px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.test-mode-toggle small { display: block; color: #c6c0b6; font-size: 11px; font-weight: 400; margin-top: 4px; }
+.test-mode-toggle input { width: 24px; height: 24px; accent-color: #e52329; flex-shrink: 0; }
+#test-phone-field { margin-top: 20px; }
+#test-phone-field > label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+#test-whatsapp-number { width: 100%; min-width: 0; border: 1px solid #777; border-radius: 4px; background: #0d0d0d; color: #f5f2eb; padding: 12px; font: 16px/1.5 Arial, sans-serif; }
+#test-whatsapp-number[aria-invalid="true"] { border-color: #ff777b; }
+#test-phone-hint, .test-privacy { font-size: 11px; color: #c6c0b6; line-height: 1.7; }
+#test-phone-error { margin: 12px 0; }
+.test-privacy { margin-top: 12px; }
+.message-details summary:focus-visible, .test-mode-toggle input:focus-visible, #test-whatsapp-number:focus-visible { outline: 3px solid #ffcd70; outline-offset: 4px; }
+@media (max-width: 380px) {
+  .order-receipt { padding: 14px; }
+  .receipt-products li { flex-direction: column; gap: 8px; }
+  .receipt-subtotal { text-align: left; }
+  .receipt-subtotal small { display: inline; margin-right: 8px; }
+  .receipt-total { padding: 14px; }
+  #whatsapp-checkout { white-space: normal; }
+}

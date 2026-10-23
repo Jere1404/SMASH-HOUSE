@@ -49,8 +49,32 @@
 <div id="review-step" hidden>
 <h3 id="review-title" class="step-title" tabindex="-1">REVISÁ TU PEDIDO.</h3>
 <p class="order-hint">Este es el mensaje que podés copiar o abrir en WhatsApp. Revisá los datos antes de compartirlo.</p>
-<label class="sr-only" for="order-preview">Vista previa del mensaje de pedido</label>
-<textarea id="order-preview" readonly rows="14" spellcheck="false"></textarea>
+<section class="order-receipt" aria-label="Resumen del pedido">
+<p class="eyebrow">SMASH HOUSE / RESUMEN</p>
+<dl class="receipt-customer">
+<div><dt>Cliente</dt><dd id="review-customer-name"></dd></div>
+<div><dt>Modalidad</dt><dd id="review-delivery-mode"></dd></div>
+<div id="review-address-row" hidden><dt>Dirección</dt><dd id="review-address"></dd></div>
+</dl>
+<ul id="review-products" class="receipt-products" aria-label="Productos del pedido"></ul>
+<div class="receipt-total"><span>TOTAL DEL PEDIDO <small>Precios de demostración</small></span><strong id="review-total"></strong></div>
+<div id="review-notes-row" class="receipt-notes" hidden><h4>OBSERVACIONES</h4><p id="review-notes"></p></div>
+<p class="receipt-disclaimer">Precios ficticios. Sin pagos ni confirmación de compra. Disponibilidad y entrega a confirmar con el local.</p>
+</section>
+<details id="message-details" class="message-details"><summary>Ver mensaje completo</summary>
+<label class="sr-only" for="order-preview">Mensaje completo para copiar o abrir en WhatsApp</label>
+<textarea id="order-preview" readonly rows="10" spellcheck="false"></textarea>
+</details>
+<div class="test-mode-panel">
+<label class="test-mode-toggle" for="test-mode"><span>MODO DE PRUEBA <small>Usá un destino autorizado para esta sesión.</small></span><input id="test-mode" type="checkbox" autocomplete="off" aria-controls="test-phone-field" aria-expanded="false"></label>
+<div id="test-phone-field" hidden>
+<label for="test-whatsapp-number">WhatsApp autorizado para pruebas</label>
+<input id="test-whatsapp-number" type="tel" inputmode="tel" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="40" disabled aria-describedby="test-phone-hint test-phone-error">
+<p id="test-phone-hint" class="order-hint">Incluí el código de país. Para Argentina, +54 (y 9 si corresponde a un celular), sin el 0 de área ni el 15 local. Se aceptan espacios, guiones y paréntesis. Solo se valida el formato, no la existencia ni la autorización del número.</p>
+<p id="test-phone-error" class="field-error" hidden></p>
+<p class="test-privacy">Solo en memoria mientras esta página esté abierta. Desactivá el modo para borrar el número. No se guarda ni se envía a servidores propios.</p>
+</div>
+</div>
 <p id="checkout-note" class="order-hint"></p>
 <a id="whatsapp-checkout" class="button order-action" hidden target="_blank" rel="noopener noreferrer">ABRIR WHATSAPP <span aria-hidden="true">↗</span></a>
 <button id="copy-order" class="button order-action" type="button">COPIAR MENSAJE</button>
