@@ -1,4 +1,4 @@
-# SMASH HOUSE 3.1
+# SMASH HOUSE 3.2
 
 Sitio web estático de una hamburguesería **ficticia** de Corrientes, Argentina. Diseño basado en la referencia visual proporcionada: carbón, rojo intenso, blanco hueso, tipografía contundente y detalles streetwear.
 
@@ -22,7 +22,7 @@ Probá cambiar entre Burgers, Papas & más y Bebidas; agregar productos; abrir e
 - `styles.css`: diseño responsive, tipografía local, efectos hover, foco visible y soporte para movimiento reducido.
 - `script.js`: catálogo, filtros, carrito, cálculo de totales y configuración pública del local.
 - `assets/hero-burger.png`: imagen de demostración utilizada en la portada y la sección de historia, conservadas sin cambios.
-- `assets/fries.svg`, `rings.svg`, `drink.svg`, `lemonade.svg`: ilustraciones originales de demostración. Las salsas utilizan las fotografías nuevas detalladas a continuación.
+- `assets/crispy-fries.png`, `loaded-fries.png`, `onion-rings.png`, `cola-helada.png` y `house-lemonade.png`: fotografías de acompañamientos y bebidas incorporadas en 3.2. Los SVG anteriores se conservan como archivos históricos, pero ya no se utilizan en las tarjetas. Las salsas mantienen sus fotografías de la versión 2.0.
 - `assets/Anton-Regular.ttf` y `Anton-OFL.txt`: tipografía Anton, distribuida bajo SIL Open Font License; licencia incluida.
 
 ## Configuración del local
@@ -165,3 +165,43 @@ La revisión ya no depende de un cuadro de texto grande: usa un resumen legible 
 - Sin errores JavaScript; auditoría automática axe-core WCAG A/AA y 2.1 AA sin incidencias en los pasos del checkout a 390 y 1440 px, incluido el error del campo de prueba. No sustituye una revisión manual completa con tecnologías de asistencia.
 
 Los cambios quedan locales en la rama de 3.1: sin commit, push, fusión con `main` ni publicación.
+
+
+## Fotografías y títulos dinámicos — versión 3.2
+
+Trabajo realizado exclusivamente en `feat/smash-house-v3-2-photos`, a partir de la versión remota con las cinco nuevas fotos (commit `83d923d`).
+
+### Archivos de las fotografías
+
+Al obtener la rama, las imágenes estaban en la raíz del repositorio, con nombres en mayúsculas y espacios. Se movieron a `assets/` y se normalizaron los nombres solicitados **sin modificar los bytes de las imágenes**:
+
+| Archivo recibido en la raíz | Ubicación utilizada | Producto |
+| --- | --- | --- |
+| `CRISPY FIRES.png` | `assets/crispy-fries.png` | CRISPY FRIES |
+| `LOADED FRIES.png` | `assets/loaded-fries.png` | LOADED FRIES |
+| `ONION RINGS.png` | `assets/onion-rings.png` | ONION RINGS |
+| `COLA HELADA.png` | `assets/cola-helada.png` | COLA HELADA |
+| `HOUSE LEMONADE.png` | `assets/house-lemonade.png` | HOUSE LEMONADE |
+
+Las cinco tienen proporción 3:2 (1536 × 1024). Se usa ancho adaptable, altura automática y `object-fit: contain`, sin ampliación al pasar el mouse. Las tarjetas se distribuyen en una grilla adaptable. El nombre, ingredientes, precio y botón siguen como HTML debajo de la fotografía; se retiró el número que antes se superponía a las ilustraciones. No se modificaron las fotografías de hamburguesas ni salsas.
+
+### Título del menú
+
+`menuTitles` y `updateMenuTitle()` en `script.js` actualizan el mismo encabezado cuando se renderiza una categoría:
+
+- Burgers: **BURGER** en blanco hueso y **SELECTION.** en rojo.
+- Papas & más: **CHOOSE YOUR** en blanco hueso y **SIDE DISH.** en rojo.
+- Bebidas: **DRINKS.** en rojo.
+
+La actualización es inmediata y no recarga la página. Conserva la tipografía y escala originales. Los grupos de palabras pueden pasar de línea sin recortes. La transición dura 180 ms, es discreta y respeta `prefers-reduced-motion`. El encabezado anuncia los cambios mediante `aria-live="polite"`; el filtro mantiene sus estados `aria-pressed`. Sin JavaScript, el HTML conserva el título inicial **BURGER SELECTION.**.
+
+### Validación de 3.2
+
+- Correspondencia visual y de rutas para las cinco fotos, carga y decodificación correctas; proporción original y contenido HTML debajo, sin superposiciones ni referencias a ilustraciones en esas tarjetas.
+- Textos exactos, colores y tipografía de los tres títulos, filtros 5/3/2, cambio inmediato y movimiento reducido.
+- Sin desbordes del documento ni recortes en el título a 320, 375, 390, 768, 1024 y 1440 px; revisión visual de papas y bebidas en celular y escritorio.
+- Carrito con productos de las tres categorías: agregar, modificar cantidades, quitar y comprobar total; formulario y mensaje con los importes actuales.
+- Se repitieron las pruebas del modo de prueba de WhatsApp: validación, enlace codificado, copia, ausencia de persistencia, limpieza al desactivar/recargar y conservación del carrito. Sin envíos reales ni números reales incorporados.
+- Sin errores de JavaScript ni recursos fallidos; título inicial verificado con JavaScript desactivado.
+
+Cambios locales en la rama de 3.2, sin commit, push, publicación ni fusión con `main`.

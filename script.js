@@ -12,18 +12,48 @@ const products = [
   {id:'truffle',name:'TRUFFLE CLUB',category:'burgers',description:'Doble smash, queso, cebolla caramelizada y mayo de trufa.',price:7800,image:'assets/TRUFFLE CLUB.png'},
   {id:'smoked',name:'SMOKED OUT',category:'burgers',description:'Doble smash, cheddar, cebolla crispy y salsa ahumada.',price:7500,image:'assets/SMOKED OUT .png'},
   {id:'monster',name:'THE MONSTER',category:'burgers',description:'Triple smash, triple cheddar, panceta y salsa secreta.',price:8900,image:'assets/THE MOSNTER.png',badge:'GO BIG'},
-  {id:'fries',name:'CRISPY FRIES',category:'sides',description:'Papas doradas, sal de especias y salsa House.',price:3200,image:'assets/fries.svg'},
-  {id:'loaded',name:'LOADED FRIES',category:'sides',description:'Papas con cheddar, panceta y cebolla de verdeo.',price:4500,image:'assets/fries.svg'},
-  {id:'onion',name:'ONION RINGS',category:'sides',description:'Aros de cebolla crocantes con Midnight BBQ.',price:3800,image:'assets/rings.svg'},
-  {id:'cola',name:'COLA HELADA',category:'drinks',description:'Gaseosa cola, lata de 354 ml. Bien fría.',price:1800,image:'assets/drink.svg'},
-  {id:'lemon',name:'HOUSE LEMONADE',category:'drinks',description:'Limonada de la casa con menta. Vaso de 400 ml.',price:2400,image:'assets/lemonade.svg'}
+  {id:'fries',name:'CRISPY FRIES',category:'sides',description:'Papas doradas, sal de especias y salsa House.',price:3200,image:'assets/crispy-fries.png'},
+  {id:'loaded',name:'LOADED FRIES',category:'sides',description:'Papas con cheddar, panceta y cebolla de verdeo.',price:4500,image:'assets/loaded-fries.png'},
+  {id:'onion',name:'ONION RINGS',category:'sides',description:'Aros de cebolla crocantes con Midnight BBQ.',price:3800,image:'assets/onion-rings.png'},
+  {id:'cola',name:'COLA HELADA',category:'drinks',description:'Gaseosa cola, lata de 354 ml. Bien fría.',price:1800,image:'assets/cola-helada.png'},
+  {id:'lemon',name:'HOUSE LEMONADE',category:'drinks',description:'Limonada de la casa con menta. Vaso de 400 ml.',price:2400,image:'assets/house-lemonade.png'}
 ];
 const money = value => '$ ' + new Intl.NumberFormat('es-AR').format(value);
 const cart = new Map();
 const productList = document.querySelector('#products');
 const dialog = document.querySelector('#cart-dialog');
 let toastTimer;
+const menuTitles = {
+  burgers: ['BURGER', 'SELECTION.'],
+  sides: ['CHOOSE YOUR', 'SIDE DISH.'],
+  drinks: ['', 'DRINKS.']
+};
+let menuTitleAnimation;
+function updateMenuTitle(category) {
+  const title = document.querySelector('#menu-title');
+  const [lead, accent] = menuTitles[category];
+  const previousCategory = title.dataset.menuCategory;
+  title.replaceChildren();
+  if (lead) {
+    const whiteText = document.createElement('span');
+    whiteText.textContent = lead;
+    title.append(whiteText, document.createTextNode(' '));
+  }
+  const redText = document.createElement('em');
+  redText.textContent = accent;
+  title.append(redText);
+  title.dataset.menuCategory = category;
+  menuTitleAnimation?.cancel();
+  if (previousCategory && previousCategory !== category && !matchMedia('(prefers-reduced-motion: reduce)').matches && title.animate) {
+    menuTitleAnimation = title.animate(
+      [{opacity: .55, transform: 'translateY(3px)'}, {opacity: 1, transform: 'translateY(0)'}],
+      {duration: 180, easing: 'ease-out'}
+    );
+  }
+}
 function renderProducts(category) {
+  updateMenuTitle(category);
+  productList.classList.toggle('food-photo-grid', category !== 'burgers');
   productList.classList.toggle('burger-grid', category === 'burgers');
   productList.innerHTML = products.filter(product => product.category === category).map(product => {
     const isBurger = product.category === 'burgers';
@@ -32,7 +62,7 @@ function renderProducts(category) {
     const details = isBurger
       ? `<h3 class="sr-only" id="product-${product.id}">${product.name}</h3><details class="burger-ingredients"><summary>Ver ingredientes</summary><p>${product.description}</p></details>`
       : `<h3 id="product-${product.id}">${product.name}</h3><p>${product.description}</p>`;
-    return `<article class="product-card${isBurger ? ' photo-card' : ''}" aria-labelledby="product-${product.id}"><div class="product-image"><img src="${encodeURI(product.image)}" alt="${isBurger ? 'Presentación de ' + product.name : product.name + ', ilustración de demostración'}" loading="lazy"${isBurger ? ' width="1536" height="1024"' : ''}>${isBurger ? '' : `<span class="product-number">${String(products.indexOf(product)+1).padStart(2,'0')}</span>`}</div><div class="product-info">${details}<div class="product-bottom"><span class="price">${money(product.price)}</span><button class="add-button" data-add="${product.id}" aria-label="Agregar ${product.name} al pedido">+</button></div></div></article>`;
+    return `<article class="product-card${isBurger ? ' photo-card' : ' food-photo-card'}" aria-labelledby="product-${product.id}"><div class="product-image"><img src="${encodeURI(product.image)}" alt="${isBurger ? 'Presentación de ' + product.name : 'Fotografía de ' + product.name}" loading="lazy" width="1536" height="1024"></div><div class="product-info">${details}<div class="product-bottom"><span class="price">${money(product.price)}</span><button class="add-button" data-add="${product.id}" aria-label="Agregar ${product.name} al pedido">+</button></div></div></article>`;
   }).join('');
 }
 function notify(message) {
