@@ -113,6 +113,25 @@ function addProduct(id) {
   renderCart();
   notify(`${products.find(product => product.id === id).name} agregado al pedido`);
 }
+// Una sola confirmación breve dentro del diálogo; agrupa pulsaciones rápidas.
+let cartAnnouncementTimer;
+function clearCartAnnouncement() {
+  clearTimeout(cartAnnouncementTimer);
+  document.querySelector('#cart-status').textContent = '';
+}
+function announceCartChange(id) {
+  clearCartAnnouncement();
+  cartAnnouncementTimer = setTimeout(() => {
+    if (!dialog.open) return;
+    const product = products.find(item => item.id === id);
+    const quantity = cart.get(id) || 0;
+    const change = quantity
+      ? `${product.name}: ${quantity} ${quantity === 1 ? 'unidad' : 'unidades'}.`
+      : `${product.name} eliminado del pedido.${cart.size ? '' : ' Carrito vacío.'}`;
+    document.querySelector('#cart-status').textContent = `${change} Total del pedido: ${document.querySelector('#cart-total').textContent} ARS.`;
+  }, 250);
+}
+dialog.addEventListener('close', clearCartAnnouncement);
 document.querySelectorAll('.filter').forEach(button => button.addEventListener('click', () => {
   document.querySelectorAll('.filter').forEach(filter => {
     filter.classList.toggle('active', filter === button);
@@ -148,6 +167,7 @@ document.querySelector('#cart-items').addEventListener('click', event => {
   renderCart();
   const replacement = document.querySelector(`[data-${operation}="${id}"]`);
   (replacement || document.querySelector('#close-cart')).focus();
+  announceCartChange(id);
 });
 // Flujo de pedido: los datos se conservan solo en memoria mientras la página esté abierta.
 const orderForm = document.querySelector('#order-form');

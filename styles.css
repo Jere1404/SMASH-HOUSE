@@ -135,3 +135,10 @@
 .product-grid.food-photo-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 24px; }
 .food-photo-card .product-image { height: auto; background: #0c0c0c; }
 .food-photo-card .product-image img { display: block; width: 100%; height: auto; object-fit: contain; object-position: center; transform: none; }
+
+/* Solo se presenta cuando el navegador no ejecuta JavaScript. */
+.no-script-notice { margin: 24px max(6%, 24px); padding: 20px; border: 1px solid #e52329; border-radius: 6px; background: #171717; overflow-wrap: anywhere; }
+.no-script-notice h2 { font-size: 24px; letter-spacing: 0; margin-bottom: 12px; }
+.no-script-notice p { max-width: 75ch; }
+.no-script-notice nav { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 12px; }
+.no-script-notice a { display: inline-block; padding: 6px 0; text-decoration: underline; text-underline-offset: 4px; }
