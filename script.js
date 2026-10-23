@@ -51,6 +51,23 @@ function updateMenuTitle(category) {
     );
   }
 }
+// Variantes generadas desde los PNG originales; 1536w conserva la WebP de V4.0.2.
+const PRODUCT_IMAGE_WIDTHS = [360, 480, 768, 1200];
+// Reflejan las grillas de styles.css: padding 6% hasta 700px, luego 5vw,
+// borde de 1px a cada lado, gap de 24px y cuerpo con máximo de 1800px.
+// "auto" usa el ancho real para imágenes lazy donde está soportado.
+// Las condiciones siguientes son el respaldo para otros navegadores.
+const PRODUCT_IMAGE_SIZES = {
+  burgers: 'auto, (max-width: 700px) calc(88vw - 2px), (max-width: 1000px) calc(90vw - 2px), calc((min(100vw, 1800px) - 10vw - 24px) / 2 - 2px)',
+  sides: 'auto, (max-width: 663.6363px) calc(88vw - 2px), (max-width: 700px) calc(44vw - 14px), (max-width: 986.6666px) calc(45vw - 14px), calc((min(100vw, 1800px) - 10vw - 48px) / 3 - 2px)',
+  drinks: 'auto, (max-width: 663.6363px) calc(88vw - 2px), (max-width: 700px) calc(44vw - 14px), calc((min(100vw, 1800px) - 10vw - 24px) / 2 - 2px)'
+};
+function productImageSrcset(product) {
+  return [
+    ...PRODUCT_IMAGE_WIDTHS.map(width => `assets/responsive/${product.id}-${width}.webp ${width}w`),
+    `${encodeURI(product.image)} 1536w`
+  ].join(', ');
+}
 function renderProducts(category) {
   updateMenuTitle(category);
   productList.classList.toggle('food-photo-grid', category !== 'burgers');
@@ -62,7 +79,7 @@ function renderProducts(category) {
     const details = isBurger
       ? `<h3 class="sr-only" id="product-${product.id}">${product.name}</h3><details class="burger-ingredients"><summary>Ver ingredientes</summary><p>${product.description}</p></details>`
       : `<h3 id="product-${product.id}">${product.name}</h3><p>${product.description}</p>`;
-    return `<article class="product-card${isBurger ? ' photo-card' : ' food-photo-card'}" aria-labelledby="product-${product.id}"><div class="product-image"><img src="${encodeURI(product.image)}" alt="${isBurger ? 'Presentación de ' + product.name : 'Fotografía de ' + product.name}" loading="lazy" width="1536" height="1024"></div><div class="product-info">${details}<div class="product-bottom"><span class="price">${money(product.price)}</span><button class="add-button" data-add="${product.id}" aria-label="Agregar ${product.name} al pedido">+</button></div></div></article>`;
+    return `<article class="product-card${isBurger ? ' photo-card' : ' food-photo-card'}" aria-labelledby="product-${product.id}"><div class="product-image"><img src="${encodeURI(product.image)}" srcset="${productImageSrcset(product)}" sizes="${PRODUCT_IMAGE_SIZES[category]}" alt="${isBurger ? 'Presentación de ' + product.name : 'Fotografía de ' + product.name}" loading="lazy" width="1536" height="1024"></div><div class="product-info">${details}<div class="product-bottom"><span class="price">${money(product.price)}</span><button class="add-button" data-add="${product.id}" aria-label="Agregar ${product.name} al pedido">+</button></div></div></article>`;
   }).join('');
 }
 function notify(message) {
