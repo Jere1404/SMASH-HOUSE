@@ -44,25 +44,21 @@ function notify(message) {
 }
 function renderCart() {
   let total = 0, count = 0;
-  const lines = [];
   document.querySelector('#cart-items').innerHTML = [...cart].map(([id, quantity]) => {
     const product = products.find(item => item.id === id);
     total += product.price * quantity;
     count += quantity;
-    lines.push(`${quantity} × ${product.name} — ${money(product.price * quantity)}`);
     return `<article class="cart-item"><div><h3>${product.name}</h3><p>${money(product.price)} c/u · Subtotal ${money(product.price * quantity)}</p><button class="remove-item" data-remove="${id}" aria-label="Quitar ${product.name} del pedido">Quitar producto</button></div><div class="quantity"><button data-decrease="${id}" aria-label="Reducir cantidad de ${product.name}">−</button><span aria-label="Cantidad de ${product.name}">${quantity}</span><button data-increase="${id}" aria-label="Aumentar cantidad de ${product.name}">+</button></div></article>`;
   }).join('') || '<p class="cart-empty">Todavía no hay burgers por acá.<br>Elegí tu favorita y empezá el pedido.</p>';
   document.querySelector('#cart-total').textContent = money(total);
   document.querySelector('#cart-count').textContent = count;
   document.querySelector('.cart-trigger').setAttribute('aria-label', `Abrir carrito, ${count} productos`);
-  const checkout = document.querySelector('#whatsapp-checkout');
-  const validNumber = /^[1-9]\d{7,14}$/.test(SITE_CONFIG.whatsappNumber);
-  checkout.hidden = !validNumber || count === 0;
-  if (validNumber && count > 0) {
-    const message = `Hola SMASH HOUSE. Quisiera consultar por este pedido de demostración (precios ficticios):\n\n${lines.join('\n')}\n\nTotal de demostración: ${money(total)}\nA confirmar con el local. Este mensaje no confirma una compra.`;
-    checkout.href = `https://wa.me/${SITE_CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
-  } else checkout.removeAttribute('href');
-  document.querySelector('#checkout-note').textContent = validNumber ? 'Se abrirá WhatsApp con un borrador. Vos decidís si enviarlo. Pedido demo, sin pagos ni confirmación de compra.' : 'WhatsApp pendiente de configuración. No se enviará ningún pedido.';
+  document.querySelector('#finalize-order').disabled = count === 0;
+  document.querySelector('#empty-cart-note').hidden = count > 0;
+  // Cualquier cambio invalida el borrador anterior, sin borrar los datos del cliente.
+  document.querySelector('#order-preview').value = '';
+  document.querySelector('#whatsapp-checkout').removeAttribute('href');
+  document.querySelector('#whatsapp-checkout').hidden = true;
 }
 function addProduct(id) {
   if (!products.some(product => product.id === id)) return;
@@ -81,13 +77,13 @@ productList.addEventListener('click', event => {
   const button = event.target.closest('[data-add]');
   if (button) addProduct(button.dataset.add);
 });
-document.querySelectorAll('.order-trigger, .cart-trigger').forEach(button => button.addEventListener('click', () => { renderCart(); dialog.showModal(); }));
+document.querySelectorAll('.order-trigger, .cart-trigger').forEach(button => button.addEventListener('click', () => { renderCart(); showOrderStep('cart', false); dialog.showModal(); }));
 function closeCart() { dialog.close(); }
 document.querySelector('#close-cart').addEventListener('click', closeCart);
 document.querySelector('#continue-shopping').addEventListener('click', () => { closeCart(); document.querySelector('#menu').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'}); });
 dialog.addEventListener('keydown', event => {
   if (event.key !== 'Tab') return;
-  const focusable = [...dialog.querySelectorAll('button, a[href]')].filter(element => !element.hidden && element.getClientRects().length);
+  const focusable = [...dialog.querySelectorAll('button, a[href], input, textarea, select')].filter(element => !element.hidden && !element.disabled && element.getClientRects().length);
   const first = focusable[0], last = focusable[focusable.length - 1];
   if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
   else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
@@ -105,6 +101,116 @@ document.querySelector('#cart-items').addEventListener('click', event => {
   renderCart();
   const replacement = document.querySelector(`[data-${operation}="${id}"]`);
   (replacement || document.querySelector('#close-cart')).focus();
+});
+// Flujo de pedido: los datos se conservan solo en memoria mientras la página esté abierta.
+const orderForm = document.querySelector('#order-form');
+const nameInput = document.querySelector('#customer-name');
+const addressInput = document.querySelector('#delivery-address');
+const notesInput = document.querySelector('#order-notes');
+function showOrderStep(step, focus = true) {
+  for (const name of ['cart', 'customer', 'review']) {
+    document.querySelector(`#${name}-step`).hidden = name !== step;
+  }
+  document.querySelector('#order-progress').textContent = {
+    cart: '01 / CARRITO', customer: '02 / TUS DATOS', review: '03 / REVISAR Y COMPARTIR'
+  }[step];
+  dialog.scrollTop = 0;
+  if (focus) document.querySelector(step === 'cart' ? '#finalize-order' : `#${step}-title`).focus();
+}
+function selectedMode() {
+  return orderForm.querySelector('[name="deliveryMode"]:checked')?.value || '';
+}
+function setFieldError(id, inputs, message) {
+  const error = document.querySelector(`#${id}-error`);
+  error.textContent = message;
+  error.hidden = !message;
+  for (const input of inputs) {
+    if (message) input.setAttribute('aria-invalid', 'true');
+    else input.removeAttribute('aria-invalid');
+  }
+}
+function updateDeliveryMode() {
+  const delivery = selectedMode() === 'delivery';
+  document.querySelector('#address-field').hidden = !delivery;
+  addressInput.disabled = !delivery;
+  addressInput.required = delivery;
+  if (!delivery) setFieldError('address', [addressInput], '');
+  setFieldError('mode', [...orderForm.querySelectorAll('[name="deliveryMode"]')], '');
+}
+function validateCustomer() {
+  const modeInputs = [...orderForm.querySelectorAll('[name="deliveryMode"]')];
+  const fields = [
+    ['name', [nameInput], !nameInput.value.trim() ? 'Ingresá tu nombre.' : nameInput.value.length > 100 ? 'Usá hasta 100 caracteres para el nombre.' : ''],
+    ['mode', modeInputs, !selectedMode() ? 'Elegí retiro en el local o delivery.' : ''],
+    ['address', [addressInput], selectedMode() === 'delivery' && !addressInput.value.trim() ? 'Ingresá la dirección de entrega.' : addressInput.value.length > 250 && selectedMode() === 'delivery' ? 'Usá hasta 250 caracteres para la dirección.' : ''],
+    ['notes', [notesInput], notesInput.value.length > 800 ? 'Usá hasta 800 caracteres para las observaciones.' : '']
+  ];
+  for (const [id, inputs, message] of fields) setFieldError(id, inputs, message);
+  const firstError = fields.find(field => field[2]);
+  if (firstError) firstError[1][0].focus();
+  return !firstError;
+}
+function buildOrderMessage() {
+  const ars = value => `${money(value)} ARS`;
+  const delivery = selectedMode() === 'delivery';
+  let total = 0;
+  const lines = [...cart].map(([id, quantity]) => {
+    const product = products.find(item => item.id === id);
+    const subtotal = product.price * quantity;
+    total += subtotal;
+    return `${quantity} × ${product.name}\n  Unitario: ${ars(product.price)} · Subtotal: ${ars(subtotal)}`;
+  });
+  return [
+    'SMASH HOUSE — PEDIDO DE DEMOSTRACIÓN',
+    `Cliente: ${nameInput.value.trim()}`,
+    `Modalidad: ${delivery ? 'Delivery' : 'Retiro en el local'}`,
+    ...(delivery ? [`Dirección: ${addressInput.value.trim()}`] : []),
+    '', 'PRODUCTOS', ...lines, '', `TOTAL: ${ars(total)}`,
+    ...(notesInput.value.trim() ? ['', `Observaciones: ${notesInput.value.trim()}`] : []),
+    '', 'Precios ficticios. Sin pagos ni confirmación de compra.',
+    'Disponibilidad y entrega a confirmar con el local.'
+  ].join('\n');
+}
+function reviewOrder() {
+  if (!cart.size) { showOrderStep('cart'); return; }
+  if (!validateCustomer()) return;
+  const message = buildOrderMessage();
+  document.querySelector('#order-preview').value = message;
+  document.querySelector('#copy-status').textContent = '';
+  const checkout = document.querySelector('#whatsapp-checkout');
+  const configured = /^[1-9]\d{7,14}$/.test(SITE_CONFIG.whatsappNumber);
+  checkout.hidden = !configured;
+  if (configured) checkout.href = `https://wa.me/${SITE_CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
+  else checkout.removeAttribute('href');
+  document.querySelector('#checkout-note').textContent = configured
+    ? 'WhatsApp se abrirá con un borrador. Vos decidís si enviarlo. Abrirlo no confirma el pedido y no vacía tu carrito.'
+    : 'WhatsApp pendiente de un número autorizado. Podés copiar este mensaje de demostración; no se enviará automáticamente.';
+  showOrderStep('review');
+}
+document.querySelector('#finalize-order').addEventListener('click', () => {
+  if (cart.size) showOrderStep('customer');
+});
+orderForm.addEventListener('submit', event => { event.preventDefault(); reviewOrder(); });
+orderForm.querySelectorAll('[name="deliveryMode"]').forEach(input => input.addEventListener('change', updateDeliveryMode));
+for (const [input, id] of [[nameInput, 'name'], [addressInput, 'address'], [notesInput, 'notes']]) {
+  input.addEventListener('input', () => setFieldError(id, [input], ''));
+}
+document.querySelector('#back-to-cart').addEventListener('click', () => showOrderStep('cart'));
+document.querySelector('#review-back-cart').addEventListener('click', () => showOrderStep('cart'));
+document.querySelector('#edit-customer').addEventListener('click', () => showOrderStep('customer'));
+document.querySelector('#copy-order').addEventListener('click', async () => {
+  const preview = document.querySelector('#order-preview');
+  const status = document.querySelector('#copy-status');
+  try {
+    if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+    await navigator.clipboard.writeText(preview.value);
+    status.textContent = 'Mensaje copiado. Podés pegarlo donde prefieras; no fue enviado.';
+  } catch {
+    preview.focus();
+    preview.select();
+    preview.setSelectionRange(0, preview.value.length);
+    status.textContent = 'No se pudo copiar automáticamente. El mensaje quedó seleccionado: usá Copiar en tu dispositivo o Ctrl+C / Cmd+C.';
+  }
 });
 const mobileToggle = document.querySelector('.mobile-toggle');
 const navigation = document.querySelector('#navigation');

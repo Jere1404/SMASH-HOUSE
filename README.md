@@ -1,4 +1,4 @@
-# SMASH HOUSE 2.0
+# SMASH HOUSE 3.0
 
 Sitio web estático de una hamburguesería **ficticia** de Corrientes, Argentina. Diseño basado en la referencia visual proporcionada: carbón, rojo intenso, blanco hueso, tipografía contundente y detalles streetwear.
 
@@ -36,7 +36,7 @@ Al principio de `script.js`, completar `SITE_CONFIG` únicamente con informació
 
 Sin esa configuración se muestran mensajes claros de información pendiente. El mapa es una ilustración de Corrientes, sin pin comercial real. No se realiza ninguna petición a Google Maps.
 
-Cuando se configura un número válido y el carrito tiene productos, aparece un enlace que abre WhatsApp con el detalle del pedido y su total en un **borrador**. El visitante debe decidir si envía ese mensaje. El sitio nunca envía automáticamente ni muestra una confirmación de compra.
+El flujo de pedido es **Menú → Carrito → Datos del cliente → Revisar pedido → WhatsApp**. Con productos en el carrito, “FINALIZAR PEDIDO” permite completar los datos. Después de validarlos se muestra el mensaje generado. Si `SITE_CONFIG.whatsappNumber` contiene un número autorizado con formato válido, aparece “ABRIR WHATSAPP”. El enlace usa `encodeURIComponent` y solo abre un **borrador**: el visitante decide si lo envía. Si el número está vacío o no tiene formato válido, se mantiene la vista previa con la opción de copiar el mensaje. No se envía automáticamente ni se confirma una compra; abrir WhatsApp no vacía el carrito.
 
 ## Editar el menú y las imágenes
 
@@ -85,3 +85,42 @@ La descripción HTML de HOT HONEY incluye el bacon crujiente y los jalapeños qu
 - Ingredientes y descripciones desplegables; filtros 5/3/2; agregar, aumentar, reducir y quitar productos; carrito vacío y totales exactos; navegación móvil, Escape y foco del diálogo.
 - Sin errores JavaScript ni recursos fallidos durante las pruebas. Auditoría automática axe-core sin incidencias en 390 y 1440 px.
 - Se compararon las imágenes PNG contra los originales de la rama: sin alteraciones. Encabezado, portada, historia, precios y lógica de navegación, carrito y WhatsApp conservados.
+
+
+## Pedidos por WhatsApp — versión 3.0
+
+Rama de desarrollo: `feat/smash-house-v3-whatsapp`, creada desde `main` en el commit `e6a0c17`.
+
+### Datos y validación
+
+- Nombre obligatorio (hasta 100 caracteres).
+- Modalidad obligatoria: retiro en el local o delivery.
+- Dirección obligatoria solo para delivery (hasta 250 caracteres). Con retiro, se oculta y no se incluye en el mensaje; si volvés a delivery, se conserva lo que habías escrito.
+- Observaciones opcionales (hasta 800 caracteres).
+- Los campos obligatorios no aceptan valores formados únicamente por espacios. Los errores aparecen junto al campo y el foco va al primer dato que necesita corrección.
+- No se puede finalizar un carrito vacío.
+
+El mensaje incluye nombre, modalidad, dirección si corresponde, nombres de productos, cantidades, precio unitario, subtotal por producto, total y observaciones si existen. Los importes provienen del carrito actual y se formatean con separadores argentinos y la indicación ARS. Los precios siguen siendo ficticios. No hay pagos, cobros ni cálculo de tarifas de envío.
+
+Podés volver al carrito o editar tus datos sin perder los productos. Si cambiás cantidades, se genera un nuevo mensaje al revisar. Cerrar el diálogo conserva los datos durante la sesión. Recargar la página reinicia el carrito y el formulario. No se guardan datos personales en almacenamiento persistente ni se envían a un servidor.
+
+El número se configura **solo en `SITE_CONFIG.whatsappNumber`, al inicio de `script.js`**. Está vacío por defecto. Ingresar únicamente un número autorizado, en formato internacional con solo dígitos. No usar números de ejemplo. Este proyecto no incluye ningún teléfono real ni inventado.
+
+### Vista previa y copia
+
+La vista previa está disponible con o sin número configurado. “COPIAR MENSAJE” usa la API del portapapeles cuando el navegador lo permite. Si está bloqueada o no está disponible (por ejemplo, según la configuración al abrir un archivo local), se selecciona el texto y se muestran instrucciones para copiarlo manualmente. No se afirma que el mensaje haya sido enviado.
+
+### Pruebas de la versión 3.0
+
+Se verificó en Chromium mediante un servidor estático:
+
+- Agregar y eliminar productos, incrementar y reducir cantidades, totales y bloqueo del carrito vacío.
+- Validaciones de nombre, modalidad y dirección, incluidos valores con solo espacios; alternar delivery/retiro y omitir la dirección para retiro.
+- Mensajes con precios unitarios, subtotales y total exactos en ARS; nombres con acentos y emoji, observaciones multilínea y caracteres especiales.
+- Vista previa sin teléfono, copia al portapapeles y selección manual cuando falla la copia automática.
+- Regresar al carrito y editar datos sin perder productos; regenerar los importes después de cambiar cantidades.
+- Construcción y codificación del enlace de WhatsApp mediante un destino simbólico de prueba, sin configurar teléfonos ni realizar solicitudes externas. El carrito se conserva al abrir el enlace.
+- Navegación por teclado, foco dentro del diálogo y Escape; filtros del menú; sin errores JavaScript ni recursos fallidos.
+- Pasos del carrito, formulario y revisión sin desbordes en 320, 375, 390, 768, 1024 y 1440 px.
+
+Las fotografías, el encabezado, la portada y las secciones existentes se mantienen. No se publicó el sitio ni se fusionó con `main`.
