@@ -18,5 +18,68 @@
 <section class="location section" id="ubicacion"><div><p class="eyebrow">NOS VEMOS EN CORRIENTES.</p><h2>YOUR NEXT<br><em>BURGER SPOT.</em></h2><p>El próximo punto de encuentro para quienes<br>se toman las burgers en serio.</p><div class="location-details"><div><span>01 / DIRECCIÓN</span><p id="address">Local por confirmar · Corrientes, Argentina</p></div><div><span>02 / HORARIOS</span><p id="hours">Próximamente · Horarios por confirmar</p></div></div><a id="maps-link" class="text-link" hidden target="_blank" rel="noopener noreferrer">VER EN GOOGLE MAPS ↗</a><span id="maps-pending" class="pending">UBICACIÓN EN MAPS POR CONFIGURAR</span></div><div class="location-card"><div class="map-grid"></div><div class="map-pin">S<span>H</span></div><span class="map-city">CORRIENTES<br><small>27°28′ S / 58°50′ O · REFERENCIA DE CIUDAD</small></span><span class="map-disclaimer">MAPA ILUSTRATIVO · SIN DIRECCIÓN COMERCIAL</span></div></section>
 <section class="contact section" id="contacto"><div><p class="eyebrow">¿SALE UNA SMASH?</p><h2>LET'S <em>TALK BURGERS.</em></h2><p>El canal de WhatsApp estará disponible cuando configuremos el número del local.</p></div><button class="button order-trigger">ARMÁ TU PEDIDO DEMO <span>↗</span></button></section>
 </main><footer><a class="logo" href="#inicio">SMASH<span>HOUSE®</span></a><p>Corrientes, Argentina.<br>Costras crocantes. Buenas juntadas.</p><span>© 2026 SMASH HOUSE<br>MARCA FICTICIA · SITIO DE DEMOSTRACIÓN</span><a href="#inicio" aria-label="Volver al inicio">VOLVER ARRIBA ↑</a></footer>
-<dialog id="cart-dialog" aria-labelledby="cart-title"><div class="cart-header"><div><p class="eyebrow">LET'S MAKE IT A DOUBLE.</p><h2 id="cart-title">TU <em>PEDIDO.</em></h2></div><button id="close-cart" class="icon-button" aria-label="Cerrar carrito">×</button></div><p class="cart-demo">Pedido de demostración · Precios ficticios en ARS</p><div id="cart-items"></div><div class="cart-summary"><span>TOTAL</span><strong id="cart-total">$ 0</strong></div><p id="checkout-note">WhatsApp pendiente de configuración. No se enviará ningún pedido.</p><a id="whatsapp-checkout" class="button" hidden target="_blank" rel="noopener noreferrer">CONTINUAR EN WHATSAPP ↗</a><button id="continue-shopping" class="button outline">SEGUIR EXPLORANDO ↗</button></dialog><div id="toast" role="status" aria-live="polite"></div>
+<dialog id="cart-dialog" aria-labelledby="cart-title">
+<div class="cart-header"><div><p class="eyebrow">LET'S MAKE IT A DOUBLE.</p><h2 id="cart-title">TU <em>PEDIDO.</em></h2></div><button id="close-cart" class="icon-button" aria-label="Cerrar carrito">×</button></div>
+<p class="cart-demo">Pedido de demostración · Precios ficticios en ARS</p>
+<p id="order-progress" class="order-progress" aria-live="polite">01 / CARRITO</p>
+<div id="cart-step">
+<div id="cart-items"></div><div class="cart-summary"><span>TOTAL</span><strong id="cart-total">$ 0</strong></div>
+<p id="empty-cart-note" class="order-hint">Agregá productos para finalizar el pedido.</p>
+<button id="finalize-order" class="button order-action" disabled>FINALIZAR PEDIDO <span aria-hidden="true">↗</span></button>
+<button id="continue-shopping" class="button outline">SEGUIR EXPLORANDO ↗</button>
+</div>
+<div id="customer-step" hidden>
+<h3 id="customer-title" class="step-title" tabindex="-1">TUS DATOS.</h3>
+<p class="order-hint">Completá los campos obligatorios (*). Solo se incluyen en el mensaje que vos decidas compartir.</p>
+<form id="order-form" novalidate>
+<label for="customer-name">Nombre del cliente *</label>
+<input id="customer-name" name="customerName" autocomplete="name" required maxlength="100" aria-describedby="name-error">
+<p id="name-error" class="field-error" hidden></p>
+<fieldset><legend>¿Cómo lo recibís? *</legend><div class="delivery-options">
+<label><input type="radio" name="deliveryMode" value="pickup" required aria-describedby="mode-error"> Retiro en el local</label>
+<label><input type="radio" name="deliveryMode" value="delivery" required aria-describedby="mode-error"> Delivery</label>
+</div><p id="mode-error" class="field-error" hidden></p></fieldset>
+<div id="address-field" hidden><label for="delivery-address">Dirección de entrega *</label><input id="delivery-address" name="deliveryAddress" autocomplete="street-address" maxlength="250" disabled aria-describedby="address-error"><p id="address-error" class="field-error" hidden></p></div>
+<label for="order-notes">Observaciones <span class="optional">(opcional)</span></label>
+<textarea id="order-notes" name="notes" rows="3" maxlength="800" placeholder="Aclaraciones para tu pedido" aria-describedby="notes-error"></textarea>
+<p id="notes-error" class="field-error" hidden></p>
+<button class="button order-action" type="submit">REVISAR PEDIDO <span aria-hidden="true">↗</span></button>
+<button id="back-to-cart" class="button outline" type="button">VOLVER AL CARRITO</button>
+</form></div>
+<div id="review-step" hidden>
+<h3 id="review-title" class="step-title" tabindex="-1">REVISÁ TU PEDIDO.</h3>
+<p class="order-hint">Este es el mensaje que podés copiar o abrir en WhatsApp. Revisá los datos antes de compartirlo.</p>
+<section class="order-receipt" aria-label="Resumen del pedido">
+<p class="eyebrow">SMASH HOUSE / RESUMEN</p>
+<dl class="receipt-customer">
+<div><dt>Cliente</dt><dd id="review-customer-name"></dd></div>
+<div><dt>Modalidad</dt><dd id="review-delivery-mode"></dd></div>
+<div id="review-address-row" hidden><dt>Dirección</dt><dd id="review-address"></dd></div>
+</dl>
+<ul id="review-products" class="receipt-products" aria-label="Productos del pedido"></ul>
+<div class="receipt-total"><span>TOTAL DEL PEDIDO <small>Precios de demostración</small></span><strong id="review-total"></strong></div>
+<div id="review-notes-row" class="receipt-notes" hidden><h4>OBSERVACIONES</h4><p id="review-notes"></p></div>
+<p class="receipt-disclaimer">Precios ficticios. Sin pagos ni confirmación de compra. Disponibilidad y entrega a confirmar con el local.</p>
+</section>
+<details id="message-details" class="message-details"><summary>Ver mensaje completo</summary>
+<label class="sr-only" for="order-preview">Mensaje completo para copiar o abrir en WhatsApp</label>
+<textarea id="order-preview" readonly rows="10" spellcheck="false"></textarea>
+</details>
+<div class="test-mode-panel">
+<label class="test-mode-toggle" for="test-mode"><span>MODO DE PRUEBA <small>Usá un destino autorizado para esta sesión.</small></span><input id="test-mode" type="checkbox" autocomplete="off" aria-controls="test-phone-field" aria-expanded="false"></label>
+<div id="test-phone-field" hidden>
+<label for="test-whatsapp-number">WhatsApp autorizado para pruebas</label>
+<input id="test-whatsapp-number" type="tel" inputmode="tel" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="40" disabled aria-describedby="test-phone-hint test-phone-error">
+<p id="test-phone-hint" class="order-hint">Incluí el código de país. Para Argentina, +54 (y 9 si corresponde a un celular), sin el 0 de área ni el 15 local. Se aceptan espacios, guiones y paréntesis. Solo se valida el formato, no la existencia ni la autorización del número.</p>
+<p id="test-phone-error" class="field-error" hidden></p>
+<p class="test-privacy">Solo en memoria mientras esta página esté abierta. Desactivá el modo para borrar el número. No se guarda ni se envía a servidores propios.</p>
+</div>
+</div>
+<p id="checkout-note" class="order-hint"></p>
+<a id="whatsapp-checkout" class="button order-action" hidden target="_blank" rel="noopener noreferrer">ABRIR WHATSAPP <span aria-hidden="true">↗</span></a>
+<button id="copy-order" class="button order-action" type="button">COPIAR MENSAJE</button>
+<p id="copy-status" class="order-hint" role="status" aria-live="polite"></p>
+<button id="edit-customer" class="button outline" type="button">EDITAR DATOS</button>
+<button id="review-back-cart" class="button outline" type="button">VOLVER AL CARRITO</button>
+</div></dialog><div id="toast" role="status" aria-live="polite"></div>
 </body></html>
