@@ -7,16 +7,16 @@ const SITE_CONFIG = {
   googleMapsUrl: '' // URL HTTPS de Google Maps del local.
 };
 const products = [
-  {id:'og',name:'THE OG',category:'burgers',description:'Doble smash, cheddar, pepinillos y salsa House.',price:6500,image:'assets/THE OG.png',badge:'HOUSE FAVORITE'},
-  {id:'honey',name:'HOT HONEY',category:'burgers',description:'Doble smash, cheddar, bacon crujiente, jalapeños y miel picante.',price:7200,image:'assets/HOT HONEY.png',badge:'SWEET HEAT'},
-  {id:'truffle',name:'TRUFFLE CLUB',category:'burgers',description:'Doble smash, queso, cebolla caramelizada y mayo de trufa.',price:7800,image:'assets/TRUFFLE CLUB.png'},
-  {id:'smoked',name:'SMOKED OUT',category:'burgers',description:'Doble smash, cheddar, cebolla crispy y salsa ahumada.',price:7500,image:'assets/SMOKED OUT .png'},
-  {id:'monster',name:'THE MONSTER',category:'burgers',description:'Triple smash, triple cheddar, panceta y salsa secreta.',price:8900,image:'assets/THE MOSNTER.png',badge:'GO BIG'},
-  {id:'fries',name:'CRISPY FRIES',category:'sides',description:'Papas doradas, sal de especias y salsa House.',price:3200,image:'assets/crispy-fries.png'},
-  {id:'loaded',name:'LOADED FRIES',category:'sides',description:'Papas con cheddar, panceta y cebolla de verdeo.',price:4500,image:'assets/loaded-fries.png'},
-  {id:'onion',name:'ONION RINGS',category:'sides',description:'Aros de cebolla crocantes con Midnight BBQ.',price:3800,image:'assets/onion-rings.png'},
-  {id:'cola',name:'COLA HELADA',category:'drinks',description:'Gaseosa cola, lata de 354 ml. Bien fría.',price:1800,image:'assets/cola-helada.png'},
-  {id:'lemon',name:'HOUSE LEMONADE',category:'drinks',description:'Limonada de la casa con menta. Vaso de 400 ml.',price:2400,image:'assets/house-lemonade.png'}
+  {id:'og',name:'THE OG',category:'burgers',description:'Doble smash, cheddar, pepinillos y salsa House.',price:6500,image:'assets/THE OG.webp',badge:'HOUSE FAVORITE'},
+  {id:'honey',name:'HOT HONEY',category:'burgers',description:'Doble smash, cheddar, bacon crujiente, jalapeños y miel picante.',price:7200,image:'assets/HOT HONEY.webp',badge:'SWEET HEAT'},
+  {id:'truffle',name:'TRUFFLE CLUB',category:'burgers',description:'Doble smash, queso, cebolla caramelizada y mayo de trufa.',price:7800,image:'assets/TRUFFLE CLUB.webp'},
+  {id:'smoked',name:'SMOKED OUT',category:'burgers',description:'Doble smash, cheddar, cebolla crispy y salsa ahumada.',price:7500,image:'assets/SMOKED OUT .webp'},
+  {id:'monster',name:'THE MONSTER',category:'burgers',description:'Triple smash, triple cheddar, panceta y salsa secreta.',price:8900,image:'assets/THE MOSNTER.webp',badge:'GO BIG'},
+  {id:'fries',name:'CRISPY FRIES',category:'sides',description:'Papas doradas, sal de especias y salsa House.',price:3200,image:'assets/crispy-fries.webp'},
+  {id:'loaded',name:'LOADED FRIES',category:'sides',description:'Papas con cheddar, panceta y cebolla de verdeo.',price:4500,image:'assets/loaded-fries.webp'},
+  {id:'onion',name:'ONION RINGS',category:'sides',description:'Aros de cebolla crocantes con Midnight BBQ.',price:3800,image:'assets/onion-rings.webp'},
+  {id:'cola',name:'COLA HELADA',category:'drinks',description:'Gaseosa cola, lata de 354 ml. Bien fría.',price:1800,image:'assets/cola-helada.webp'},
+  {id:'lemon',name:'HOUSE LEMONADE',category:'drinks',description:'Limonada de la casa con menta. Vaso de 400 ml.',price:2400,image:'assets/house-lemonade.webp'}
 ];
 const money = value => '$ ' + new Intl.NumberFormat('es-AR').format(value);
 const cart = new Map();
