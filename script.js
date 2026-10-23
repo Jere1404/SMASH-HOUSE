@@ -7,11 +7,11 @@ const SITE_CONFIG = {
   googleMapsUrl: '' // URL HTTPS de Google Maps del local.
 };
 const products = [
-  {id:'og',name:'THE OG',category:'burgers',description:'Doble smash, cheddar, pepinillos y salsa House.',price:6500,image:'assets/hero-burger.png',badge:'HOUSE FAVORITE'},
-  {id:'honey',name:'HOT HONEY',category:'burgers',description:'Doble smash, cheddar, panceta y miel picante.',price:7200,image:'assets/hero-burger.png',badge:'SWEET HEAT'},
-  {id:'truffle',name:'TRUFFLE CLUB',category:'burgers',description:'Doble smash, queso, cebolla caramelizada y mayo de trufa.',price:7800,image:'assets/hero-burger.png'},
-  {id:'smoked',name:'SMOKED OUT',category:'burgers',description:'Doble smash, cheddar, cebolla crispy y salsa ahumada.',price:7500,image:'assets/hero-burger.png'},
-  {id:'monster',name:'THE MONSTER',category:'burgers',description:'Triple smash, triple cheddar, panceta y salsa secreta.',price:8900,image:'assets/hero-burger.png',badge:'GO BIG'},
+  {id:'og',name:'THE OG',category:'burgers',description:'Doble smash, cheddar, pepinillos y salsa House.',price:6500,image:'assets/THE OG.png',badge:'HOUSE FAVORITE'},
+  {id:'honey',name:'HOT HONEY',category:'burgers',description:'Doble smash, cheddar, bacon crujiente, jalapeños y miel picante.',price:7200,image:'assets/HOT HONEY.png',badge:'SWEET HEAT'},
+  {id:'truffle',name:'TRUFFLE CLUB',category:'burgers',description:'Doble smash, queso, cebolla caramelizada y mayo de trufa.',price:7800,image:'assets/TRUFFLE CLUB.png'},
+  {id:'smoked',name:'SMOKED OUT',category:'burgers',description:'Doble smash, cheddar, cebolla crispy y salsa ahumada.',price:7500,image:'assets/SMOKED OUT .png'},
+  {id:'monster',name:'THE MONSTER',category:'burgers',description:'Triple smash, triple cheddar, panceta y salsa secreta.',price:8900,image:'assets/THE MOSNTER.png',badge:'GO BIG'},
   {id:'fries',name:'CRISPY FRIES',category:'sides',description:'Papas doradas, sal de especias y salsa House.',price:3200,image:'assets/fries.svg'},
   {id:'loaded',name:'LOADED FRIES',category:'sides',description:'Papas con cheddar, panceta y cebolla de verdeo.',price:4500,image:'assets/fries.svg'},
   {id:'onion',name:'ONION RINGS',category:'sides',description:'Aros de cebolla crocantes con Midnight BBQ.',price:3800,image:'assets/rings.svg'},
@@ -24,8 +24,16 @@ const productList = document.querySelector('#products');
 const dialog = document.querySelector('#cart-dialog');
 let toastTimer;
 function renderProducts(category) {
-  productList.innerHTML = products.filter(product => product.category === category).map(product => `
-    <article class="product-card"><div class="product-image"><img src="${product.image}" alt="${product.category === 'burgers' ? 'Imagen ilustrativa de smash burger; la composición puede variar' : product.name + ', ilustración de demostración'}" loading="lazy"><span class="product-number">${String(products.indexOf(product)+1).padStart(2,'0')}</span>${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}</div><div class="product-info"><h3>${product.name}</h3><p>${product.description}</p><div class="product-bottom"><span class="price">${money(product.price)}</span><button class="add-button" data-add="${product.id}" aria-label="Agregar ${product.name} al pedido">+</button></div></div></article>`).join('');
+  productList.classList.toggle('burger-grid', category === 'burgers');
+  productList.innerHTML = products.filter(product => product.category === category).map(product => {
+    const isBurger = product.category === 'burgers';
+    // Las fotos incluyen título e ingredientes: evitar duplicarlos visualmente.
+    // El contenido HTML sigue disponible para lectores de pantalla y en el desplegable.
+    const details = isBurger
+      ? `<h3 class="sr-only" id="product-${product.id}">${product.name}</h3><details class="burger-ingredients"><summary>Ver ingredientes</summary><p>${product.description}</p></details>`
+      : `<h3 id="product-${product.id}">${product.name}</h3><p>${product.description}</p>`;
+    return `<article class="product-card${isBurger ? ' photo-card' : ''}" aria-labelledby="product-${product.id}"><div class="product-image"><img src="${encodeURI(product.image)}" alt="${isBurger ? 'Presentación de ' + product.name : product.name + ', ilustración de demostración'}" loading="lazy"${isBurger ? ' width="1536" height="1024"' : ''}>${isBurger ? '' : `<span class="product-number">${String(products.indexOf(product)+1).padStart(2,'0')}</span>`}</div><div class="product-info">${details}<div class="product-bottom"><span class="price">${money(product.price)}</span><button class="add-button" data-add="${product.id}" aria-label="Agregar ${product.name} al pedido">+</button></div></div></article>`;
+  }).join('');
 }
 function notify(message) {
   const toast = document.querySelector('#toast');
